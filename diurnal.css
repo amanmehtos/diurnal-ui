@@ -1,0 +1,552 @@
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@500&display=swap');
+
+/* Diurnal UI — monochrome components lit by the sun (light) or the full moon (dark).
+ *
+ * diurnal.mjs keeps these on :root in step with the light source:
+ *   --dn-dx, --dn-dy   shadow offset per px of elevation (direction × length)
+ *   --dn-nx, --dn-ny   unit shadow direction (the lit rim sits on the opposite edge)
+ *   --dn-blur          blur per px of elevation
+ *   --dn-alpha         shadow strength
+ * Each component sets --dn-elev (px); the shared shadow recipe does the rest.
+ * Only .dn-* classes and body.dn are styled, so including this file is safe anywhere. */
+
+:root {
+  --dn-dx: 0; --dn-dy: 0.45; --dn-nx: 0; --dn-ny: 1; --dn-blur: 1; --dn-alpha: 0.3; --dn-rim-k: 1;
+
+  --dn-bg: #efefed;
+  --dn-surface: #fafaf9;
+  --dn-raised: #ffffff;
+  --dn-sunken: #e6e6e3;
+  --dn-ink: #141414;
+  --dn-ink-2: #3d3d3c;
+  --dn-muted: #6e6e6b;
+  --dn-line: #d3d3cf;
+  --dn-line-strong: #a9a9a4;
+  --dn-shadow-rgb: 20 18 14;
+  --dn-rim: rgb(255 255 255 / calc(0.95 * var(--dn-rim-k)));
+  --dn-focus: #141414;
+  --dn-danger: #ae3b31;
+
+  /* Set like a novel: one book face, Libre Baskerville, for everything but code. */
+  --dn-display: 'Libre Baskerville', Baskerville, 'Baskerville Old Face', Georgia, serif;
+  --dn-body: 'Libre Baskerville', Baskerville, 'Baskerville Old Face', Georgia, serif;
+  --dn-mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
+
+  --dn-radius: 8px;
+  --dn-radius-sm: 6px;
+  --dn-ease: 1.6s cubic-bezier(.2, .7, .2, 1);
+
+  color-scheme: light;
+}
+:root[data-dn-theme='dark'] {
+  --dn-bg: #0b0b0c;
+  --dn-surface: #18181a;
+  --dn-raised: #242427;
+  --dn-sunken: #0e0e0f;
+  --dn-ink: #ececea;
+  --dn-ink-2: #c2c2bf;
+  --dn-muted: #85857f;
+  --dn-line: #2e2e31;
+  --dn-line-strong: #4a4a4f;
+  --dn-shadow-rgb: 0 0 0;
+  --dn-rim: rgb(214 222 240 / calc(0.32 * var(--dn-rim-k))); /* cool moonlight catching the lit edge */
+  --dn-focus: #ececea;
+  --dn-danger: #e0796e;
+  color-scheme: dark;
+}
+
+/* The shared recipe: a cast shadow away from the light, a contact shadow, and a
+   lit rim on the edge that faces the light. */
+.dn-lit {
+  --dn-elev: 4px;
+  box-shadow:
+    calc(var(--dn-dx) * var(--dn-elev)) calc(var(--dn-dy) * var(--dn-elev)) calc(var(--dn-blur) * var(--dn-elev)) rgb(var(--dn-shadow-rgb) / var(--dn-alpha)),
+    calc(var(--dn-dx) * 1px) calc(var(--dn-dy) * 1px) 1px rgb(var(--dn-shadow-rgb) / min(1, calc(var(--dn-alpha) * 1.6))),
+    inset calc(var(--dn-nx) * -1px) calc(var(--dn-ny) * -1px) 0 var(--dn-rim);
+  transition: box-shadow var(--dn-ease), transform .12s ease, background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+
+/* ---------------------------------------------------------------- Page transitions */
+/* Same-site navigations cross-fade instead of cutting (browsers without support just cut). */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .22s; }
+@media (prefers-reduced-motion: reduce) { @view-transition { navigation: none; } }
+
+/* ---------------------------------------------------------------- Page */
+body.dn {
+  margin: 0;
+  background: var(--dn-bg);
+  color: var(--dn-ink);
+  font: 0.9375rem/1.75 var(--dn-body);
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+  text-rendering: optimizeLegibility;
+}
+.dn :where(h1, h2, h3, h4) { font-family: var(--dn-display); font-weight: 400; line-height: 1.15; letter-spacing: -.005em; margin: 0; }
+.dn :where(h3, h4) { font-style: italic; }
+.dn :where(a) { color: inherit; }
+/* Small capitals, as in a running head. */
+.dn-eyebrow { font: 400 0.8125rem/1.2 var(--dn-body); font-variant: small-caps; text-transform: lowercase; letter-spacing: .12em; color: var(--dn-muted); }
+
+/* Book typography */
+.dn-prose { hyphens: auto; text-align: justify; text-wrap: pretty; }
+.dn-prose p + p { text-indent: 1.5em; margin-top: 0; }
+.dn-dropcap::first-letter { float: left; font: 400 3.6em/.82 var(--dn-display); padding: .08em .1em 0 0; color: var(--dn-ink); }
+.dn-fleuron { display: block; height: auto; margin: 56px auto; text-align: center; font: 400 1.375rem/1 var(--dn-display); color: var(--dn-muted); border: 0; background: none; overflow: visible; }
+.dn-fleuron::before { content: '\2766'; }
+.dn-chapter { font: italic 400 0.875rem/1.2 var(--dn-display); color: var(--dn-muted); }
+
+/* ---------------------------------------------------------------- Buttons */
+.dn-btn {
+  --dn-elev: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.375rem;
+  padding: 0 1rem;
+  font: 400 0.8438rem/1 var(--dn-body);
+  letter-spacing: .01em;
+  color: var(--dn-ink);
+  background: var(--dn-raised);
+  border: 1px solid var(--dn-line);
+  border-radius: var(--dn-radius);
+  cursor: pointer;
+  text-decoration: none;
+  user-select: none;
+  box-shadow:
+    calc(var(--dn-dx) * var(--dn-elev)) calc(var(--dn-dy) * var(--dn-elev)) calc(var(--dn-blur) * var(--dn-elev)) rgb(var(--dn-shadow-rgb) / var(--dn-alpha)),
+    calc(var(--dn-dx) * 1px) calc(var(--dn-dy) * 1px) 1px rgb(var(--dn-shadow-rgb) / min(1, calc(var(--dn-alpha) * 1.6))),
+    inset calc(var(--dn-nx) * -1px) calc(var(--dn-ny) * -1px) 0 var(--dn-rim);
+  transition: box-shadow var(--dn-ease), transform .12s ease, background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+.dn-btn:hover { --dn-elev: 9px; border-color: var(--dn-line-strong); }
+/* Pressing pushes the button into the surface: its shadow collapses and it moves toward where the shadow was. */
+.dn-btn:active { --dn-elev: 1px; transform: translate(calc(var(--dn-dx) * 1.5px), calc(var(--dn-dy) * 1.5px)); transition-duration: .08s; }
+.dn-btn:focus-visible { outline: 2px solid var(--dn-focus); outline-offset: 3px; }
+.dn-btn:disabled, .dn-btn[aria-disabled='true'] { --dn-elev: 0px; opacity: .45; cursor: not-allowed; transform: none; }
+.dn-btn svg { width: 18px; height: 18px; flex: none; }
+
+.dn-btn--primary { color: var(--dn-bg); background: var(--dn-ink); border-color: var(--dn-ink); }
+.dn-btn--primary:hover { border-color: var(--dn-ink); background: var(--dn-ink-2); }
+.dn-btn--ghost { --dn-elev: 0px; background: transparent; border-color: transparent; box-shadow: none; }
+.dn-btn--ghost:hover { --dn-elev: 0px; background: var(--dn-sunken); border-color: transparent; }
+.dn-btn--outline { background: transparent; border-color: var(--dn-line-strong); }
+.dn-btn--danger { color: var(--dn-bg); background: var(--dn-danger); border-color: var(--dn-danger); }
+.dn-btn--danger:hover { filter: brightness(.92); border-color: var(--dn-danger); }
+.dn-btn--sm { min-height: 1.875rem; padding: 0 0.6875rem; font-size: 0.8125rem; --dn-elev: 4px; border-radius: var(--dn-radius-sm); }
+.dn-btn--lg { min-height: 3rem; padding: 0 1.375rem; font-size: 1rem; --dn-elev: 9px; }
+.dn-btn--icon { width: 38px; padding: 0; flex-shrink: 0; }
+.dn-btn--icon.dn-btn--sm { width: 30px; }
+.dn-btn--block { display: flex; width: 100%; }
+
+.dn-btn-group { display: inline-flex; }
+.dn-btn-group > .dn-btn { border-radius: 0; }
+.dn-btn-group > .dn-btn:first-child { border-radius: var(--dn-radius) 0 0 var(--dn-radius); }
+.dn-btn-group > .dn-btn:last-child { border-radius: 0 var(--dn-radius) var(--dn-radius) 0; }
+.dn-btn-group > .dn-btn + .dn-btn { margin-left: -1px; }
+
+/* ---------------------------------------------------------------- Surfaces */
+.dn-card {
+  --dn-elev: 14px;
+  padding: 1.25rem;
+  background: var(--dn-surface);
+  border: 1px solid var(--dn-line);
+  border-radius: 12px;
+  box-shadow:
+    calc(var(--dn-dx) * var(--dn-elev)) calc(var(--dn-dy) * var(--dn-elev)) calc(var(--dn-blur) * var(--dn-elev)) rgb(var(--dn-shadow-rgb) / var(--dn-alpha)),
+    calc(var(--dn-dx) * 2px) calc(var(--dn-dy) * 2px) 2px rgb(var(--dn-shadow-rgb) / calc(var(--dn-alpha) * 0.8)),
+    inset calc(var(--dn-nx) * -1px) calc(var(--dn-ny) * -1px) 0 var(--dn-rim);
+  transition: box-shadow var(--dn-ease), background-color .4s ease, border-color .4s ease;
+}
+.dn-card--flat { --dn-elev: 0px; }
+.dn-card--float { --dn-elev: 28px; }
+a.dn-card { display: block; text-decoration: none; color: inherit; }
+a.dn-card:hover { --dn-elev: 20px; border-color: var(--dn-line-strong); }
+
+.dn-well { padding: 1rem; background: var(--dn-sunken); border: 1px solid var(--dn-line); border-radius: 10px;
+  box-shadow: inset calc(var(--dn-dx) * -3px) calc(var(--dn-dy) * -3px) calc(var(--dn-blur) * 5px) rgb(var(--dn-shadow-rgb) / calc(var(--dn-alpha) * 0.9));
+  transition: box-shadow var(--dn-ease); }
+
+.dn-divider { height: 1px; border: 0; background: var(--dn-line); margin: 20px 0; }
+
+/* ---------------------------------------------------------------- Form fields */
+.dn-field { display: flex; flex-direction: column; gap: 0.4375rem; }
+.dn-label { font: italic 400 0.8125rem/1.2 var(--dn-body); color: var(--dn-ink-2); }
+.dn-hint { font-size: 0.75rem; font-style: italic; color: var(--dn-muted); }
+
+/* Fields are carved into the surface: the shadow falls on the side facing the light. */
+.dn-input, .dn-select, .dn-textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 2.375rem;
+  padding: 0.5rem 0.75rem;
+  font: 400 0.875rem/1.45 var(--dn-body);
+  color: var(--dn-ink);
+  background: var(--dn-sunken);
+  border: 1px solid var(--dn-line);
+  border-radius: var(--dn-radius);
+  box-shadow: inset calc(var(--dn-dx) * -2px) calc(var(--dn-dy) * -2px) calc(var(--dn-blur) * 3px) rgb(var(--dn-shadow-rgb) / var(--dn-alpha));
+  transition: box-shadow var(--dn-ease), border-color .2s ease, background-color .4s ease;
+}
+.dn-textarea { min-height: 5.5rem; resize: vertical; }
+/* On touch screens fields read at 16px: iOS Safari zooms the whole page into any
+   field set smaller, the moment it is tapped. */
+@media (pointer: coarse) { .dn-input, .dn-select, .dn-textarea { font-size: 1rem; } }
+.dn-input::placeholder, .dn-textarea::placeholder { color: var(--dn-muted); }
+.dn-input:hover, .dn-select:hover, .dn-textarea:hover { border-color: var(--dn-line-strong); }
+.dn-input:focus, .dn-select:focus, .dn-textarea:focus { outline: none; border-color: var(--dn-ink); }
+.dn-select { appearance: none; padding-right: 34px; cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--dn-muted) 50%), linear-gradient(135deg, var(--dn-muted) 50%, transparent 50%);
+  background-position: calc(100% - 17px) 55%, calc(100% - 12px) 55%;
+  background-size: 5px 5px; background-repeat: no-repeat; }
+
+/* Checkbox, radio */
+.dn-check, .dn-radio { display: inline-flex; align-items: center; gap: 0.625rem; font-size: 0.875rem; cursor: pointer; }
+.dn-check input, .dn-radio input {
+  --dn-elev: 2px;
+  appearance: none;
+  width: 1.125rem; height: 1.125rem; margin: 0;
+  display: grid; place-items: center;
+  background: var(--dn-raised);
+  border: 1px solid var(--dn-line-strong);
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: calc(var(--dn-dx) * var(--dn-elev)) calc(var(--dn-dy) * var(--dn-elev)) calc(var(--dn-blur) * var(--dn-elev)) rgb(var(--dn-shadow-rgb) / var(--dn-alpha));
+  transition: box-shadow var(--dn-ease), background-color .15s ease;
+}
+.dn-radio input { border-radius: 50%; }
+.dn-check input::after { content: ''; width: 9px; height: 5px; border: solid var(--dn-bg); border-width: 0 0 2px 2px; transform: rotate(-45deg) translate(1px, -1px); opacity: 0; }
+.dn-radio input::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--dn-bg); opacity: 0; }
+.dn-check input:checked, .dn-radio input:checked { background: var(--dn-ink); border-color: var(--dn-ink); }
+.dn-check input:checked::after, .dn-radio input:checked::after { opacity: 1; }
+.dn-check input:focus-visible, .dn-radio input:focus-visible { outline: 2px solid var(--dn-focus); outline-offset: 2px; }
+
+/* Switch: the knob is a raised disc that casts its own shadow into the track. */
+.dn-switch { display: inline-flex; align-items: center; gap: 0.625rem; font-size: 0.875rem; cursor: pointer; }
+.dn-switch input {
+  appearance: none; position: relative; margin: 0;
+  width: 2.625rem; height: 1.5rem; flex: none;
+  background: var(--dn-sunken);
+  border: 1px solid var(--dn-line-strong);
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: inset calc(var(--dn-dx) * -2px) calc(var(--dn-dy) * -2px) calc(var(--dn-blur) * 3px) rgb(var(--dn-shadow-rgb) / var(--dn-alpha));
+  transition: background-color .2s ease, box-shadow var(--dn-ease);
+}
+.dn-switch input::before {
+  --dn-elev: 3px;
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 1.125rem; height: 1.125rem; border-radius: 50%;
+  background: var(--dn-raised);
+  box-shadow:
+    calc(var(--dn-dx) * var(--dn-elev)) calc(var(--dn-dy) * var(--dn-elev)) calc(var(--dn-blur) * var(--dn-elev)) rgb(var(--dn-shadow-rgb) / calc(var(--dn-alpha) * 1.4)),
+    inset calc(var(--dn-nx) * -1px) calc(var(--dn-ny) * -1px) 0 var(--dn-rim);
+  transition: left .2s cubic-bezier(.3, .7, .2, 1), box-shadow var(--dn-ease);
+}
+.dn-switch input:checked { background: var(--dn-ink); border-color: var(--dn-ink); }
+.dn-switch input:checked::before { left: 20px; }
+.dn-switch input:focus-visible { outline: 2px solid var(--dn-focus); outline-offset: 2px; }
+
+/* Segmented control: the chosen option is lifted out of the track. */
+.dn-seg { display: inline-flex; gap: 3px; padding: 3px; background: var(--dn-sunken); border: 1px solid var(--dn-line); border-radius: 10px;
+  box-shadow: inset calc(var(--dn-dx) * -2px) calc(var(--dn-dy) * -2px) calc(var(--dn-blur) * 3px) rgb(var(--dn-shadow-rgb) / var(--dn-alpha));
+  transition: box-shadow var(--dn-ease); }
+.dn-seg button {
+  --dn-elev: 0px;
+  min-height: 1.875rem; padding: 0 0.75rem;
+  font: 400 0.8125rem/1 var(--dn-body);
+  color: var(--dn-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: box-shadow var(--dn-ease), background-color .15s ease, color .15s ease;
+}
+.dn-seg button:hover { color: var(--dn-ink); }
+.dn-seg button[aria-pressed='true'], .dn-seg button[aria-selected='true'] {
+  --dn-elev: 3px;
+  color: var(--dn-ink);
+  background: var(--dn-raised);
+  border-color: var(--dn-line);
+  box-shadow:
+    calc(var(--dn-dx) * var(--dn-elev)) calc(var(--dn-dy) * var(--dn-elev)) calc(var(--dn-blur) * var(--dn-elev)) rgb(var(--dn-shadow-rgb) / var(--dn-alpha)),
+    inset calc(var(--dn-nx) * -1px) calc(var(--dn-ny) * -1px) 0 var(--dn-rim);
+}
+.dn-seg button:focus-visible { outline: 2px solid var(--dn-focus); outline-offset: 1px; }
+
+/* Tabs */
+.dn-tabs { display: flex; gap: 1.375rem; border-bottom: 1px solid var(--dn-line); }
+.dn-tabs button { padding: 0.625rem 0; margin-bottom: -1px; font: 400 0.875rem/1 var(--dn-body); font-variant: small-caps; letter-spacing: .06em; color: var(--dn-muted); background: none; border: 0; border-bottom: 2px solid transparent; cursor: pointer; }
+.dn-tabs button:hover { color: var(--dn-ink); }
+.dn-tabs button[aria-selected='true'] { color: var(--dn-ink); border-bottom-color: var(--dn-ink); }
+.dn-tabs button:focus-visible { outline: 2px solid var(--dn-focus); outline-offset: 2px; }
+
+/* Badges, keys */
+.dn-badge { display: inline-flex; align-items: center; gap: 0.375rem; padding: 3px 0.625rem; font: 400 0.75rem/1.3 var(--dn-body); font-variant: small-caps; text-transform: lowercase; letter-spacing: .08em; color: var(--dn-ink-2); background: var(--dn-sunken); border: 1px solid var(--dn-line); border-radius: 999px; }
+.dn-badge--solid { color: var(--dn-bg); background: var(--dn-ink); border-color: var(--dn-ink); }
+.dn-badge--outline { background: transparent; border-color: var(--dn-line-strong); }
+.dn-badge i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.dn-kbd {
+  --dn-elev: 2px;
+  display: inline-grid; place-items: center; min-width: 1.5rem; height: 24px; padding: 0 0.375rem;
+  font: 500 0.75rem/1 var(--dn-mono); color: var(--dn-ink);
+  background: var(--dn-raised); border: 1px solid var(--dn-line-strong); border-radius: 5px;
+  box-shadow: calc(var(--dn-dx) * var(--dn-elev)) calc(var(--dn-dy) * var(--dn-elev)) calc(var(--dn-blur) * var(--dn-elev)) rgb(var(--dn-shadow-rgb) / var(--dn-alpha));
+  transition: box-shadow var(--dn-ease);
+}
+
+/* Progress: a groove with a raised fill. */
+.dn-progress { height: 8px; background: var(--dn-sunken); border: 1px solid var(--dn-line); border-radius: 999px; overflow: hidden;
+  box-shadow: inset calc(var(--dn-dx) * -1px) calc(var(--dn-dy) * -1px) calc(var(--dn-blur) * 2px) rgb(var(--dn-shadow-rgb) / var(--dn-alpha)); }
+.dn-progress > span { display: block; height: 100%; background: var(--dn-ink); border-radius: inherit; transition: width .4s ease; }
+
+/* Tooltip: [data-dn-tip] on any element. */
+[data-dn-tip] { position: relative; }
+[data-dn-tip]:hover::after, [data-dn-tip]:focus-visible::after {
+  content: attr(data-dn-tip);
+  position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%);
+  padding: 0.375rem 0.5625rem; white-space: nowrap;
+  font: italic 400 0.75rem/1.2 var(--dn-body); color: var(--dn-bg); background: var(--dn-ink);
+  border-radius: 6px; pointer-events: none; z-index: 10;
+  box-shadow: calc(var(--dn-dx) * 6px) calc(var(--dn-dy) * 6px) calc(var(--dn-blur) * 6px) rgb(var(--dn-shadow-rgb) / var(--dn-alpha));
+}
+
+/* ---------------------------------------------------------------- Powered-by mark */
+.dn-powered { display: flex; justify-content: center; padding: 1.75rem 1rem 2.25rem; }
+.dn-powered a {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.4375rem 0.8125rem 0.4375rem 0.625rem;
+  font: italic 400 0.75rem/1 var(--dn-body, Georgia, serif);
+  letter-spacing: .01em;
+  color: var(--dn-muted);
+  text-decoration: none;
+  border: 1px solid var(--dn-line);
+  border-radius: 999px;
+  background: var(--dn-surface);
+  box-shadow: calc(var(--dn-dx) * 3px) calc(var(--dn-dy) * 3px) calc(var(--dn-blur) * 3px) rgb(var(--dn-shadow-rgb) / var(--dn-alpha));
+  transition: box-shadow var(--dn-ease), color .2s ease, border-color .2s ease;
+}
+.dn-powered a:hover { color: var(--dn-ink); border-color: var(--dn-line-strong); }
+.dn-powered a:focus-visible { outline: 2px solid var(--dn-focus); outline-offset: 2px; }
+.dn-powered b { font-weight: 400; font-style: normal; font-variant: small-caps; letter-spacing: .06em; color: var(--dn-ink); }
+.dn-powered__mark { display: inline-grid; width: 14px; height: 14px; color: var(--dn-ink); }
+.dn-powered__mark svg { width: 100%; height: 100%; }
+/* Full-screen apps (e.g. Fates) float the mark in a corner instead of a footer. */
+.dn-powered--float { position: fixed; right: 14px; bottom: 12px; padding: 0; z-index: 50; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dn-btn, .dn-card, .dn-lit, .dn-input, .dn-select, .dn-textarea, .dn-switch input, .dn-switch input::before, .dn-seg, .dn-seg button, .dn-powered a { transition: none; }
+}
+
+/* ================================================================ Fluid motion
+ * After the apple-design skill (Apple, "Designing Fluid Interfaces"). html[data-dn-motion]
+ * is "fluid" by default; "classic" keeps the plain CSS transitions above for comparison.
+ *
+ * Only transform and opacity animate on interaction. The cast shadow is painted once
+ * (it changes only as the sky moves); hovering fades in a second, higher shadow layer
+ * rather than repainting box-shadow every frame. */
+
+/* Tracking is size-specific: tighter as type grows, neutral for body. */
+.dn h1 { letter-spacing: -.02em; line-height: 1.02; }
+.dn h2 { letter-spacing: -.012em; line-height: 1.1; }
+.dn h3, .dn h4 { letter-spacing: 0; line-height: 1.25; }
+
+html:not([data-dn-motion='classic']) .dn-btn:not(.dn-btn--ghost),
+html:not([data-dn-motion='classic']) a.dn-card {
+  position: relative;
+  isolation: isolate;
+  transition: box-shadow var(--dn-ease), transform .1s ease-out, background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+html:not([data-dn-motion='classic']) .dn-btn:not(.dn-btn--ghost)::after,
+html:not([data-dn-motion='classic']) a.dn-card::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow: calc(var(--dn-dx) * 12px) calc(var(--dn-dy) * 12px) calc(var(--dn-blur) * 12px) rgb(var(--dn-shadow-rgb) / calc(var(--dn-alpha) * 0.7));
+  transition: opacity .18s ease-out;
+}
+/* Hover: rise toward the light (translate against the shadow) and let the higher shadow fade in. */
+html:not([data-dn-motion='classic']) .dn-btn:not(.dn-btn--ghost):hover,
+html:not([data-dn-motion='classic']) a.dn-card:hover {
+  --dn-elev: var(--dn-elev-rest, 6px);
+  transform: translate(calc(var(--dn-dx) * -1.5px), calc(var(--dn-dy) * -1.5px));
+}
+html:not([data-dn-motion='classic']) a.dn-card:hover { --dn-elev: 14px; }
+html:not([data-dn-motion='classic']) .dn-btn:not(.dn-btn--ghost):hover::after,
+html:not([data-dn-motion='classic']) a.dn-card:hover::after { opacity: 1; }
+/* Press: instant feedback on pointer-down, a small quick squeeze, no shadow repaint. */
+html:not([data-dn-motion='classic']) .dn-btn:active {
+  --dn-elev: var(--dn-elev-rest, 6px);
+  transform: scale(.97);
+  transition-duration: .1s;
+}
+html:not([data-dn-motion='classic']) .dn-btn:active::after { opacity: 0; transition-duration: .06s; }
+html:not([data-dn-motion='classic']) .dn-btn--sm { --dn-elev-rest: 4px; }
+html:not([data-dn-motion='classic']) .dn-btn--lg { --dn-elev-rest: 9px; }
+html:not([data-dn-motion='classic']) .dn-btn:disabled { transform: none; }
+html:not([data-dn-motion='classic']) .dn-btn:disabled::after { opacity: 0; }
+
+/* Switch: a real knob on a spring (fluid.mjs). Classic keeps the pseudo-element knob. */
+.dn-switch__track { position: relative; display: inline-flex; flex: none; }
+.dn-switch__knob { display: none; }
+html:not([data-dn-motion='classic']) .dn-switch input::before { opacity: 0; }
+html:not([data-dn-motion='classic']) .dn-switch input:checked { background: var(--dn-sunken); border-color: var(--dn-line-strong); }
+html:not([data-dn-motion='classic']) .dn-switch__track::before {
+  /* the ink fill follows the knob, so a half-dragged switch reads half-on */
+  content: ''; position: absolute; inset: 1px; border-radius: 999px; pointer-events: none;
+  background: var(--dn-ink); opacity: var(--dn-switch-fill, 0);
+}
+html:not([data-dn-motion='classic']) .dn-switch__knob {
+  display: block;
+  position: absolute; top: 3px; left: 3px;
+  width: 1.125rem; height: 1.125rem; border-radius: 50%;
+  background: var(--dn-raised);
+  pointer-events: none;
+  will-change: transform;
+  box-shadow:
+    calc(var(--dn-dx) * 3px) calc(var(--dn-dy) * 3px) calc(var(--dn-blur) * 3px) rgb(var(--dn-shadow-rgb) / min(1, calc(var(--dn-alpha) * 1.4))),
+    inset calc(var(--dn-nx) * -1px) calc(var(--dn-ny) * -1px) 0 var(--dn-rim);
+}
+html:not([data-dn-motion='classic']) .dn-switch__track { cursor: grab; touch-action: pan-y; }
+html:not([data-dn-motion='classic']) .dn-switch__track:active { cursor: grabbing; }
+
+/* Segmented control: one lifted indicator that glides between options on a spring. */
+.dn-seg { position: relative; }
+.dn-seg__indicator { display: none; }
+html:not([data-dn-motion='classic']) .dn-seg__indicator {
+  display: block;
+  position: absolute; top: 0; left: 0;
+  border-radius: 7px;
+  background: var(--dn-raised);
+  border: 1px solid var(--dn-line);
+  pointer-events: none;
+  will-change: transform, width, height;
+  box-shadow:
+    calc(var(--dn-dx) * 3px) calc(var(--dn-dy) * 3px) calc(var(--dn-blur) * 3px) rgb(var(--dn-shadow-rgb) / var(--dn-alpha)),
+    inset calc(var(--dn-nx) * -1px) calc(var(--dn-ny) * -1px) 0 var(--dn-rim);
+  transition: box-shadow var(--dn-ease), opacity .15s ease;
+}
+html:not([data-dn-motion='classic']) .dn-seg button { position: relative; }
+html:not([data-dn-motion='classic']) .dn-seg button[aria-pressed='true'],
+html:not([data-dn-motion='classic']) .dn-seg button[aria-selected='true'] { background: transparent; border-color: transparent; box-shadow: none; }
+
+/* Material: a translucent layer that lets content show through, lit on its top edge. */
+.dn-material {
+  background: color-mix(in oklab, var(--dn-surface) 72%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid color-mix(in oklab, var(--dn-line) 70%, transparent);
+  box-shadow: inset 0 1px 0 var(--dn-rim);
+}
+/* Bigger surfaces read as thicker: stronger blur, deeper shadow. */
+.dn-material--thick { -webkit-backdrop-filter: blur(32px) saturate(150%); backdrop-filter: blur(32px) saturate(150%); background: color-mix(in oklab, var(--dn-surface) 80%, transparent); }
+
+/* Sheet */
+.dn-sheet { position: fixed; inset: 0; z-index: 100; }
+.dn-sheet[hidden] { display: none; }
+.dn-sheet__scrim { position: absolute; inset: 0; background: rgb(var(--dn-shadow-rgb) / .35); opacity: 0; }
+.dn-sheet__panel {
+  --dn-elev: 30px;
+  position: absolute; left: 50%; bottom: 0;
+  width: min(40rem, 100%); max-height: 85vh; overflow: auto;
+  margin-left: max(-20rem, -50%);
+  padding: .5rem 1.5rem 1.75rem;
+  border-radius: 1.125rem 1.125rem 0 0;
+  border-bottom: 0;
+  transform: translateY(100%);
+  will-change: transform;
+  outline: none;
+  box-shadow:
+    calc(var(--dn-dx) * var(--dn-elev)) calc(var(--dn-dy) * var(--dn-elev) - 10px) calc(var(--dn-blur) * var(--dn-elev)) rgb(var(--dn-shadow-rgb) / var(--dn-alpha)),
+    inset 0 1px 0 var(--dn-rim);
+}
+.dn-sheet__handle { display: grid; place-items: center; height: 1.75rem; margin: 0 -1.5rem .5rem; cursor: grab; touch-action: none; }
+.dn-sheet__handle::before { content: ''; width: 2.5rem; height: 5px; border-radius: 99px; background: var(--dn-line-strong); }
+.dn-sheet__handle:active { cursor: grabbing; }
+/* Classic: the same sheet, but a fixed CSS slide and no dragging. */
+.dn-sheet.is-classic .dn-sheet__panel, .dn-sheet.is-classic .dn-sheet__scrim { transition: transform .3s ease, opacity .3s ease; }
+
+/* Theme changes ease rather than flash (avoid abrupt brightness jumps). */
+.dn-theming, .dn-theming * { transition: background-color .4s ease, color .4s ease, border-color .4s ease, fill .4s ease, stroke .4s ease !important; }
+
+/* ---------------------------------------------------------------- Accessibility modes */
+@media (prefers-reduced-motion: reduce) {
+  html .dn-btn:hover, html .dn-btn:active, html a.dn-card:hover { transform: none !important; }
+  .dn-sheet__panel { transition: opacity .2s ease; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .dn-material, .dn-material--thick { background: var(--dn-surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+@media (prefers-contrast: more) {
+  :root { --dn-line: var(--dn-line-strong); --dn-muted: var(--dn-ink-2); }
+  .dn-material, .dn-material--thick { background: var(--dn-surface); -webkit-backdrop-filter: none; backdrop-filter: none; border-color: var(--dn-ink); }
+  .dn-btn, .dn-input, .dn-select, .dn-textarea, .dn-card { border-color: var(--dn-ink-2); }
+}
+
+/* ---- The image editor (web/image-editor.mjs): a picture framed before it is kept.
+   The frame is the shape the slot wants; the picture moves and zooms behind it. */
+/* Dialogs: asking for a line of text, or whether to go ahead. Chrome's prompt() and
+   confirm() are the one place an app stops looking like itself, so Diurnal has its own. */
+.dn-ask { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; padding: 1.5rem; }
+.dn-ask__scrim { position: absolute; inset: 0; background: rgb(var(--dn-shadow-rgb) / .45); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.dn-ask__panel { position: relative; width: min(28rem, 100%); max-height: calc(100dvh - 3rem); overflow: auto; padding: 1.25rem;
+  background: var(--dn-surface); border: 1px solid var(--dn-line); border-radius: var(--dn-radius); }
+.dn-ask__title { margin: 0; font-size: 1.0625rem; font-weight: 400; }
+.dn-ask__note { margin: .5rem 0 0; color: var(--dn-ink-2); font-size: .8125rem; line-height: 1.5; }
+.dn-ask__list { margin: .625rem 0 0; padding-left: 1.125rem; color: var(--dn-muted); font-size: .75rem; line-height: 1.6; }
+.dn-ask__more { font-style: italic; }
+.dn-ask__fields { display: grid; gap: .625rem; margin-top: .875rem; }
+.dn-ask__field { display: grid; gap: .3125rem; margin-top: .875rem; }
+.dn-ask__fields .dn-ask__field { margin-top: 0; }
+.dn-ask__fields .dn-ask__bad:empty { display: none; }
+.dn-ask__bad { min-height: 1rem; margin: 0; color: var(--dn-danger); font-size: .75rem; }
+.dn-ask__warn { margin: .75rem 0 0; padding: .5rem .625rem; color: var(--dn-ink-2); font-size: .75rem; font-style: italic; line-height: 1.5;
+  background: var(--dn-sunken); border-left: 2px solid var(--dn-danger); border-radius: var(--dn-radius-sm); }
+.dn-ask__foot { display: flex; justify-content: flex-end; gap: .5rem; margin-top: 1rem; }
+
+.dn-crop { position: fixed; inset: 0; z-index: 110; display: grid; place-items: center; padding: 1.5rem; }
+.dn-crop__scrim { position: absolute; inset: 0; background: rgb(var(--dn-shadow-rgb) / .45); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.dn-crop__panel { position: relative; width: min(46rem, 100%); max-height: calc(100dvh - 3rem); overflow: auto; padding: 1.25rem;
+  border: 1px solid var(--dn-line); border-radius: 16px; background: var(--dn-raised);
+  box-shadow: calc(var(--dn-dx, 0) * 18px) calc(var(--dn-dy, 6px) * 18px) calc(var(--dn-blur, 1px) * 26px) rgb(var(--dn-shadow-rgb) / .3); }
+.dn-crop__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: .875rem; }
+.dn-crop__title { margin: 0; font-size: 1.125rem; font-weight: 400; }
+.dn-crop__hint { margin: .125rem 0 0; color: var(--dn-ink-2); font-size: .8125rem; font-style: italic; }
+.dn-crop__read { flex: none; color: var(--dn-muted); font-size: .75rem; letter-spacing: .03em; }
+.dn-crop__stage { display: grid; place-items: center; padding: .75rem; border-radius: 12px; background: var(--dn-sunken);
+  background-image: linear-gradient(45deg, rgb(var(--dn-shadow-rgb) / .05) 25%, transparent 25%, transparent 75%, rgb(var(--dn-shadow-rgb) / .05) 75%),
+    linear-gradient(45deg, rgb(var(--dn-shadow-rgb) / .05) 25%, transparent 25%, transparent 75%, rgb(var(--dn-shadow-rgb) / .05) 75%);
+  background-size: 16px 16px; background-position: 0 0, 8px 8px; }
+.dn-crop__canvas { display: block; width: 100%; height: auto; border-radius: 8px; cursor: grab; touch-action: none;
+  box-shadow: 0 0 0 1px var(--dn-line-strong), 0 0 0 100vmax rgb(var(--dn-shadow-rgb) / .04); }
+.dn-crop__canvas.is-held { cursor: grabbing; }
+.dn-crop__canvas:focus-visible { outline: 2px solid var(--dn-focus); outline-offset: 3px; }
+.dn-crop__foot { display: flex; align-items: center; gap: .625rem; margin-top: .875rem; }
+.dn-crop__zoom { flex: 1; min-width: 6rem; accent-color: var(--dn-ink); }
+@media (max-width: 34rem) { .dn-crop { padding: .75rem; } .dn-crop__foot { flex-wrap: wrap; } .dn-crop__zoom { order: -1; flex-basis: 100%; } }
+
+/* ---- The token field (web/token-field.mjs): what a trigger character offers. */
+.dn-tokens { position: absolute; z-index: 30; left: 0; right: 0; max-height: 14rem; margin: .25rem 0 0; padding: .25rem; overflow: auto; list-style: none;
+  border: 1px solid var(--dn-line-strong); border-radius: 10px; background: var(--dn-raised); box-shadow: 0 10px 30px rgb(var(--dn-shadow-rgb) / .18); }
+.dn-tokens li { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: .3rem .5rem; border-radius: 6px; cursor: pointer; }
+.dn-tokens li.is-on, .dn-tokens li:hover { background: var(--dn-sunken); }
+.dn-tokens code { font-size: .8125rem; }
+.dn-tokens span { color: var(--dn-muted); font-size: .75rem; font-style: italic; }
+
+/* Paste target (paste.mjs): the one under the pointer says it takes a pasted picture;
+   with nowhere chosen, every one says so for a moment; the one that took it flashes. */
+[data-dn-paste] { position: relative; }
+.dn-paste--armed, .dn-paste--choose { outline: 1px dashed var(--dn-line-strong); outline-offset: 3px; }
+.dn-paste--armed::after, .dn-paste--choose::after { content: attr(data-dn-paste); position: absolute; right: .5rem; top: .5rem; z-index: 3; padding: .125rem .5rem; border-radius: 999px;
+  background: var(--dn-ink); color: var(--dn-bg); font: 600 .6875rem/1.5 var(--dn-body); letter-spacing: .02em; white-space: nowrap; pointer-events: none; opacity: .9; }
+.dn-paste--choose { outline-color: var(--dn-ink); }
+.dn-paste--took { outline: 2px solid var(--dn-ink); outline-offset: 3px; }
+
+/* Links found in text (links.mjs): the text's own colour, underlined, and allowed to
+   break anywhere, since an address is one long word. */
+a.dn-autolink { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); text-underline-offset: .18em; overflow-wrap: anywhere; word-break: break-word; }
+a.dn-autolink:hover { text-decoration-color: currentColor; }

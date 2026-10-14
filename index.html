@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>/* Diurnal boot: set theme + motion before first paint, so pages never flash light. */try{var d=document.documentElement,m=localStorage.getItem('diurnal.mode');if(m!=='dark'&&m!=='light')m=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';d.dataset.dnTheme=m;d.dataset.dnMotion=localStorage.getItem('diurnal.motion')==='classic'?'classic':'fluid'}catch(e){}</script>
+<title>Diurnal UI</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="diurnal.css">
+<link rel="stylesheet" href="library.css">
+</head>
+<body class="dn">
+<header class="lib-bar dn-material" id="bar">
+  <span class="lib-name">Diurnal UI</span>
+  <span class="lib-fill"></span>
+  <span class="lib-motion-label">Motion</span>
+  <div class="dn-seg lib-motion" id="motion" role="group" aria-label="Motion">
+    <button type="button" data-motion="fluid" aria-pressed="true">Fluid</button><button type="button" data-motion="classic" aria-pressed="false">Classic</button>
+  </div>
+  <button data-dn-toggle></button>
+</header>
+
+<main class="lib">
+  <section class="lib-hero">
+    <div>
+      <div class="dn-eyebrow">Component library</div>
+      <h1>Diurnal <em>UI</em></h1>
+      <p class="lib-lede dn-prose dn-dropcap">Monochrome components lit by the sky. In light mode the sun casts every shadow; in dark mode a full moon does. Shadows follow the light's real path across your sky, so the interface quietly turns with the day.</p>
+      <div class="lib-hero-actions">
+        <a class="dn-btn dn-btn--primary dn-btn--lg" href="#components">Browse components</a>
+        <a class="dn-btn dn-btn--lg" href="#usage">Use it</a>
+      </div>
+    </div>
+    <div class="dn-card lib-sky" aria-label="Light source">
+      <div class="lib-sky-head">
+        <div>
+          <div class="dn-eyebrow" id="sky-body">Sun</div>
+          <div class="lib-sky-time" id="sky-time">—</div>
+        </div>
+        <div class="lib-sky-read" id="sky-read"></div>
+      </div>
+      <svg class="lib-chart" id="sky-chart" data-drag-hint="Drag or fling the light" viewBox="0 0 600 220" role="img" aria-label="Altitude of the light source over the day"></svg>
+      <div class="lib-scrub">
+        <input class="lib-range" id="scrub" type="range" min="0" max="1439" step="1" aria-label="Time of day">
+        <div class="lib-scrub-row">
+          <button class="dn-btn dn-btn--sm" id="play">Play a day</button>
+          <button class="dn-btn dn-btn--sm dn-btn--primary" id="live">Live</button>
+          <span class="lib-fill"></span>
+          <label class="lib-place">Lat <input class="dn-input" id="lat" type="number" min="-66" max="66" step="0.1" inputmode="decimal"></label>
+          <label class="lib-place">Lon <input class="dn-input" id="lon" type="number" min="-180" max="180" step="0.1" inputmode="decimal"></label>
+          <button class="dn-btn dn-btn--sm dn-btn--icon" id="locate" aria-label="Use my location" data-dn-tip="Use my location"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="currentColor"/><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+        </div>
+        <div class="lib-scrub-row">
+          <span class="lib-place">Weather</span>
+          <div class="dn-seg lib-weather" id="weather" role="group" aria-label="Weather"></div>
+          <span class="lib-fill"></span>
+          <span class="lib-weather-read" id="weather-read"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="dn-fleuron">
+
+  <section class="lib-section lib-section--first" id="principles">
+    <div class="lib-section-head"><div class="dn-chapter">Chapter I</div><h2>Of light &amp; shadow</h2></div>
+    <div class="lib-grid-3">
+      <div class="dn-card"><div class="dn-eyebrow">01 · Light</div><h3>Sun by day, moon by night</h3><p class="dn-prose">Light mode is lit by the sun, dark mode by the full moon, which sits opposite the sun: it rises at sunset, peaks at midnight and sets at dawn.</p></div>
+      <div class="dn-card"><div class="dn-eyebrow">02 · Shadow</div><h3>Direction, length, softness</h3><p class="dn-prose">Shadows fall away from the light. A low light casts long shadows; a high one short. Moonlight is softer and cooler than sunlight, and there's a faint lit rim on the edge facing the light.</p></div>
+      <div class="dn-card"><div class="dn-eyebrow">03 · Weather</div><h3>Clouds soften everything</h3><p class="dn-prose">On a clear day shadows are crisp and dark. Cloud, fog and rain spread the light across the whole sky, so shadows grow soft, short and faint and gather straight beneath things. Live conditions come from Open-Meteo for your location.</p></div>
+      <div class="dn-card"><div class="dn-eyebrow">04 · Tone</div><h3>Monochrome only</h3><p class="dn-prose">Ink, paper and greys, nothing else. Emphasis comes from contrast and elevation. When the light is below the horizon, only soft skylight remains.</p></div>
+    </div>
+  </section>
+
+  <hr class="dn-fleuron">
+
+  <section class="lib-section" id="components">
+    <div class="lib-section-head">
+      <div class="dn-chapter">Chapter II</div>
+      <h2>The components</h2>
+      <p>Every piece reads the same four light variables. Change the time above and watch them turn.</p>
+      <p class="lib-compare">Flip <b>Motion</b> in the top bar between <em>Fluid</em> and <em>Classic</em> to feel the difference. Fluid follows Apple's <em>Designing Fluid Interfaces</em>: springs that start from wherever things are, 1:1 dragging, momentum and soft edges.</p>
+    </div>
+
+    <article class="lib-demo">
+      <header><h3>Button</h3><code>.dn-btn</code></header>
+      <div class="lib-stage">
+        <button class="dn-btn dn-btn--primary">Primary</button>
+        <button class="dn-btn">Default</button>
+        <button class="dn-btn dn-btn--outline">Outline</button>
+        <button class="dn-btn dn-btn--ghost">Ghost</button>
+        <button class="dn-btn" disabled>Disabled</button>
+      </div>
+      <div class="lib-stage">
+        <button class="dn-btn dn-btn--sm">Small</button>
+        <button class="dn-btn">Medium</button>
+        <button class="dn-btn dn-btn--lg">Large</button>
+        <button class="dn-btn dn-btn--icon" aria-label="Add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+        <div class="dn-btn-group"><button class="dn-btn">Day</button><button class="dn-btn">Week</button><button class="dn-btn">Month</button></div>
+      </div>
+      <p class="lib-note">Hover lifts a button; pressing pushes it into the page, toward where its shadow was.</p>
+      <pre class="lib-code"><code>&lt;button class="dn-btn dn-btn--primary"&gt;Primary&lt;/button&gt;</code></pre>
+    </article>
+
+    <article class="lib-demo">
+      <header><h3>Fields</h3><code>.dn-input · .dn-select · .dn-textarea</code></header>
+      <div class="lib-form">
+        <div class="dn-field"><label class="dn-label" for="f-name">Speaker</label><input class="dn-input" id="f-name" placeholder="Adam Myer"><span class="dn-hint">Shown until the reveal fact is set.</span></div>
+        <div class="dn-field"><label class="dn-label" for="f-mood">Emote</label><select class="dn-select" id="f-mood"><option>neutral</option><option>annoyed</option><option>scared</option><option>sly</option></select></div>
+        <div class="dn-field lib-span-2"><label class="dn-label" for="f-line">Line</label><textarea class="dn-textarea" id="f-line" placeholder="You new here?"></textarea></div>
+      </div>
+      <p class="lib-note">Fields are carved into the surface, so their inner shadow falls on the side facing the light.</p>
+    </article>
+
+    <article class="lib-demo">
+      <header><h3>Choice</h3><code>.dn-check · .dn-radio · .dn-switch · .dn-seg</code></header>
+      <div class="lib-stage">
+        <label class="dn-check"><input type="checkbox" checked> Subtitles</label>
+        <label class="dn-check"><input type="checkbox"> Hints</label>
+        <label class="dn-radio"><input type="radio" name="r" checked> Press</label>
+        <label class="dn-radio"><input type="radio" name="r"> Hold</label>
+        <label class="dn-radio"><input type="radio" name="r"> Tap</label>
+        <label class="dn-switch"><input type="checkbox" role="switch" checked> Auto-save</label>
+      </div>
+      <div class="lib-stage">
+        <div class="dn-seg" role="group" aria-label="View" data-seg>
+          <button aria-pressed="true">Edit</button><button aria-pressed="false">Flow</button><button aria-pressed="false">Play</button>
+        </div>
+        <div class="dn-tabs" role="tablist" data-tabs>
+          <button role="tab" aria-selected="true">Overview</button><button role="tab" aria-selected="false">Tokens</button><button role="tab" aria-selected="false">Changelog</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="lib-demo">
+      <header><h3>Motion</h3><code>springs · momentum · .dn-sheet</code></header>
+      <div class="lib-grid-2 lib-motion-demos">
+        <div class="dn-card dn-card--flat">
+          <div class="dn-eyebrow">Switch</div>
+          <p class="lib-note">Tap it, or drag the knob and let go. It follows your finger, resists past the ends, and a flick decides where it lands.</p>
+          <div class="lib-stage"><label class="dn-switch"><input type="checkbox" role="switch"> Night shift</label><label class="dn-switch"><input type="checkbox" role="switch" checked> Subtitles</label></div>
+        </div>
+        <div class="dn-card dn-card--flat">
+          <div class="dn-eyebrow">Sheet</div>
+          <p class="lib-note">Opens from below and leaves the same way. Drag the handle: it tracks 1:1, rubber-bands upward, and a downward flick dismisses it.</p>
+          <div class="lib-stage"><button class="dn-btn dn-btn--primary" data-dn-sheet-open="demo-sheet">Open sheet</button></div>
+        </div>
+        <div class="dn-card dn-card--flat">
+          <div class="dn-eyebrow">Sky</div>
+          <p class="lib-note">Grab the sun or moon on the chart above and throw it along the day. It carries your momentum and settles where the flick was heading, and it resists at midnight.</p>
+        </div>
+        <div class="dn-card dn-card--flat">
+          <div class="dn-eyebrow">Press &amp; hover</div>
+          <p class="lib-note">Buttons squeeze the instant you press, not on release. Hover lifts them toward the light. Only transform and opacity animate, so shadows are never repainted mid-gesture.</p>
+          <div class="lib-stage"><button class="dn-btn">Press me</button><button class="dn-btn dn-btn--primary">Or me</button></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="lib-demo">
+      <header><h3>Surfaces</h3><code>.dn-card · .dn-well</code></header>
+      <div class="lib-grid-3">
+        <div class="dn-card dn-card--flat"><div class="dn-eyebrow">Flat · 0</div><p>Sits on the page. Borders do the work.</p></div>
+        <div class="dn-card"><div class="dn-eyebrow">Card · 10</div><p>The default raised surface.</p></div>
+        <div class="dn-card dn-card--float"><div class="dn-eyebrow">Float · 22</div><p>Dialogs, menus, anything above the page.</p></div>
+      </div>
+      <div class="dn-well lib-well-demo"><div class="dn-eyebrow">Well</div><p>A recessed area for code, previews and read-outs.</p></div>
+    </article>
+
+    <article class="lib-demo">
+      <header><h3>Status</h3><code>.dn-badge · .dn-kbd · .dn-progress · [data-dn-tip]</code></header>
+      <div class="lib-stage">
+        <span class="dn-badge"><i></i> Planned</span>
+        <span class="dn-badge dn-badge--solid">Live</span>
+        <span class="dn-badge dn-badge--outline">Husk</span>
+        <span class="lib-keys"><span class="dn-kbd">Ctrl</span> + <span class="dn-kbd">K</span></span>
+        <button class="dn-btn dn-btn--sm" data-dn-tip="Tooltips cast shadows too">Hover me</button>
+      </div>
+      <div class="dn-progress" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100"><span style="width:62%"></span></div>
+    </article>
+
+    <article class="lib-demo">
+      <header><h3>Token field</h3><code>web/token-field.mjs · .dn-tokens</code></header>
+      <div class="lib-form">
+        <div class="dn-field lib-span-2">
+          <label class="dn-label" for="f-token">Objective hint</label>
+          <textarea class="dn-textarea" id="f-token" rows="2" placeholder="Type { to name a control…">Hold </textarea>
+          <span class="dn-hint">A text box that offers something the moment a trigger character is typed, and writes what is chosen in its place.</span>
+        </div>
+      </div>
+      <p class="lib-note">It knows nothing about what it offers. Athena hangs it on a mechanic's rules and Fates on an objective's hint, both to name the controls Heph binds; anything with names worth remembering can use it. Arrows move, Enter or a click takes one, Escape closes.</p>
+      <pre class="lib-code"><code>tokenField(textarea, { items, insert: (c) =&gt; `{${c.name}}` });</code></pre>
+    </article>
+
+    <article class="lib-demo">
+      <header><h3>Image editor</h3><code>web/image-editor.mjs · .dn-crop</code></header>
+      <div class="lib-stage lib-stage--pad">
+        <button class="dn-btn dn-btn--primary" id="demo-crop">Frame a picture</button>
+        <div class="dn-seg" id="demo-crop-shape" role="group" aria-label="Shape"></div>
+        <img class="lib-framed" id="demo-crop-out" alt="" hidden>
+      </div>
+      <p class="lib-note">A picture framed before it is kept, in the shape the slot wants: drag to move it, scroll or the slider to zoom, arrows to nudge. The frame can never run off the picture — the smallest zoom is the one that just covers it — and what comes back is that rectangle, drawn at the size asked for.</p>
+      <pre class="lib-code"><code>const blob = await frameImage(file, { aspect: 21 / 9, edge: 2560 });</code></pre>
+    </article>
+
+    <article class="lib-demo">
+      <header><h3>Dialogs</h3><code>web/dialog.mjs · .dn-ask</code></header>
+      <div class="lib-stage lib-stage--pad">
+        <button class="dn-btn dn-btn--primary" id="demo-ask">Ask for a name</button>
+        <button class="dn-btn dn-btn--danger" id="demo-confirm">Ask before deleting</button>
+        <p class="lib-answer" id="demo-ask-out" role="status"></p>
+      </div>
+      <p class="lib-note">The browser's own <code>prompt()</code> and <code>confirm()</code> are the one place an app stops looking like itself: Chrome's grey bar, Chrome's font, the page's hostname. These say more as well — what is about to be rewritten, listed; a complaint while the answer is wrong, with the button refused until it is right; and the destructive answer marked, with the focus left on Cancel so Enter cannot do it by accident. Escape, Cancel and the scrim all mean no.</p>
+      <pre class="lib-code"><code>const to = await ask({ title: 'Rename', label: 'New name', value, check });
+if (await confirmAction({ title: 'Delete this?', danger: true })) remove();</code></pre>
+    </article>
+
+    <article class="lib-demo">
+      <header><h3>Paste target</h3><code>web/paste.mjs · [data-dn-paste]</code></header>
+      <div class="lib-paste">
+        <div class="lib-paste__slot" id="demo-paste-a"><span>Reference</span></div>
+        <div class="lib-paste__slot" id="demo-paste-b"><span>Final build</span></div>
+      </div>
+      <p class="lib-note">Copy a picture, or take a screenshot, point at a slot and press <span class="dn-kbd" id="demo-paste-key">Ctrl+V</span>: no saving it to a file first. The one under the pointer takes it; failing that, the one with the focus; failing that, the only one on the page. With several and none pointed at, each lights up for a moment instead of one being guessed. Pasting text into a field is left alone.</p>
+      <pre class="lib-code"><code>pasteTarget(gallery, (files) =&gt; upload(files));</code></pre>
+    </article>
+
+    <article class="lib-demo">
+      <header><h3>Links</h3><code>web/links.mjs · a.dn-autolink</code></header>
+      <p class="lib-answer">The packaging reference is at https://en.wikipedia.org/wiki/Cheetos (see also www.fritolay.com).</p>
+      <div class="dn-field">
+        <label class="dn-label" for="f-links">Notes</label>
+        <textarea class="dn-textarea" id="f-links" rows="2">Font from https://fonts.google.com/specimen/Libre+Baskerville</textarea>
+        <span class="dn-hint" id="f-links-hint">Ctrl+click the address to open it.</span>
+      </div>
+      <p class="lib-note">Any web address in the page's text is a link, without anyone marking it as one: text written in a box shows up with its links working, including text that arrives later. A sentence's own full stop or bracket stays out of the address. Links, buttons, code and anything still being edited are left as they are. In a text box, Ctrl+click (⌘+click on a Mac) on an address opens it.</p>
+      <pre class="lib-code"><code>el.append(linkify(text));   // or autoLink(el) for everything under it</code></pre>
+    </article>
+  </section>
+
+  <hr class="dn-fleuron">
+
+  <section class="lib-section" id="usage">
+    <div class="lib-section-head">
+      <div class="dn-chapter">Chapter III</div>
+      <h2>On using it</h2>
+      <p>Two files. Nothing is styled until you use a <code>.dn-*</code> class, so it's safe to add to any page.</p>
+    </div>
+    <pre class="lib-code"><code>&lt;link rel="stylesheet" href="diurnal.css"&gt;
+&lt;script type="module" src="diurnal.mjs"&gt;&lt;/script&gt;
+
+&lt;body class="dn"&gt;                        &lt;!-- opt the page in to the Diurnal look --&gt;
+  &lt;button data-dn-toggle&gt;&lt;/button&gt;      &lt;!-- sun / moon theme switch --&gt;
+  &lt;button class="dn-btn"&gt;Save&lt;/button&gt;
+  &lt;footer data-dn-powered&gt;&lt;/footer&gt;     &lt;!-- "Powered by Diurnal UI" --&gt;
+&lt;/body&gt;</code></pre>
+    <div class="lib-grid-2">
+      <div class="dn-card dn-card--flat">
+        <h3>Light variables</h3>
+        <table class="lib-table">
+          <tr><td><code>--dn-dx</code>, <code>--dn-dy</code></td><td>Shadow offset per pixel of elevation</td></tr>
+          <tr><td><code>--dn-nx</code>, <code>--dn-ny</code></td><td>Unit shadow direction; the rim is on the opposite edge</td></tr>
+          <tr><td><code>--dn-blur</code></td><td>Blur per pixel of elevation</td></tr>
+          <tr><td><code>--dn-alpha</code></td><td>Shadow strength</td></tr>
+          <tr><td><code>--dn-elev</code></td><td>Set per component, in px</td></tr>
+        </table>
+      </div>
+      <div class="dn-card dn-card--flat">
+        <h3>JavaScript</h3>
+        <pre class="lib-code lib-code--tight"><code>import { diurnal } from './diurnal.mjs';
+
+diurnal.setMode('dark');          // moon
+diurnal.setPlace({ lat, lon });   // your sky
+diurnal.preview(new Date(...));   // any time
+diurnal.subscribe(({ source }) =&gt; …);</code></pre>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="dn-sheet" id="demo-sheet" hidden>
+  <div class="dn-sheet__scrim"></div>
+  <div class="dn-sheet__panel dn-material dn-material--thick" role="dialog" aria-modal="true" aria-labelledby="demo-sheet-title" tabindex="-1">
+    <div class="dn-sheet__handle" aria-hidden="true"></div>
+    <div class="dn-eyebrow">A sheet</div>
+    <h3 id="demo-sheet-title">On materials</h3>
+    <p class="dn-prose">This panel is a translucent material: the page shows through, blurred, and its top edge catches the light. Larger surfaces read as thicker, with a stronger blur and a deeper shadow than small chips. Drag the handle down, or flick it, to put it away.</p>
+    <div class="lib-stage"><button class="dn-btn dn-btn--primary" data-dn-sheet-close>Done</button><button class="dn-btn" data-dn-sheet-close>Cancel</button></div>
+  </div>
+</div>
+
+<footer data-dn-powered></footer>
+
+<script type="module" src="library.mjs"></script>
+</body>
+</html>
