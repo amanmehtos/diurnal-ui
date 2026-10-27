@@ -96,6 +96,12 @@ body.dn {
 .dn-fleuron::before { content: '\2766'; }
 .dn-chapter { font: italic 400 0.875rem/1.2 var(--dn-display); color: var(--dn-muted); }
 
+/* Components size including their padding and border. Browsers already do this
+   for button and input, which is why .dn-btn--block looked right everywhere
+   until an <a class="dn-btn"> needed it — an anchor defaults to content-box,
+   so width:100% put the padding outside the 100% and overflowed the parent. */
+.dn-btn, .dn-card, .dn-well, .dn-row, .dn-nav__item, .dn-badge, .dn-kbd { box-sizing: border-box; }
+
 /* ---------------------------------------------------------------- Buttons */
 .dn-btn {
   --dn-elev: 6px;
