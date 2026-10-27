@@ -90,12 +90,16 @@ Fluid components: switch (drag or flick the knob), segmented control (spring-dri
 |---|---|
 | Button (primary, default, outline, ghost; sm/lg/icon; groups) | `.dn-btn` |
 | Card (flat, default, float), well | `.dn-card`, `.dn-well` |
+| Row — a card as control · body · aside, for lists that carry actions | `.dn-row` (+ `__body`, `__aside`) |
+| Nav — rows with counts, for sidebars | `.dn-nav` (+ `__item`, `__label`, `__count`) |
+| Divider, and the same rule with a word in it | `.dn-divider`, `.dn-divider--labelled` |
 | Input, select, textarea, label, hint | `.dn-input`, `.dn-select`, `.dn-textarea`, `.dn-field` |
 | Checkbox, radio, switch | `.dn-check`, `.dn-radio`, `.dn-switch` |
 | Segmented control, tabs | `.dn-seg`, `.dn-tabs` |
-| Badge, key, progress, tooltip | `.dn-badge`, `.dn-kbd`, `.dn-progress`, `[data-dn-tip]` |
+| Badge (solid, outline, danger), key, progress, tooltip | `.dn-badge`, `.dn-kbd`, `.dn-progress`, `[data-dn-tip]` |
 | Sheet, material | `.dn-sheet` (+ `[data-dn-sheet-open]`, `[data-dn-sheet-close]`), `.dn-material` |
 | Theme toggle, powered-by mark | `[data-dn-toggle]`, `[data-dn-powered]` |
+| Screen-reader-only text | `.dn-sr-only` |
 | Token field — offers something as a trigger character is typed | `token-field.mjs`, `.dn-tokens` |
 | Image editor — a picture framed before it is kept | `image-editor.mjs`, `.dn-crop` |
 | Dialogs — asking for a line of text, or whether to go ahead | `dialog.mjs`, `.dn-ask` |

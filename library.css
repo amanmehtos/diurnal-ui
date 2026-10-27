@@ -75,6 +75,7 @@ html:not([data-dn-motion='classic']) .lib-chart:active { cursor: grabbing; }
 .lib-note { font-size: 13px; font-style: italic; color: var(--dn-muted) !important; }
 .lib-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; max-width: 720px; }
 .lib-span-2 { grid-column: 1 / -1; }
+.lib-rows { display: grid; gap: 0.5rem; }
 .lib-well-demo { margin-top: 18px; }
 .lib-keys { display: inline-flex; align-items: center; gap: 6px; color: var(--dn-muted); }
 
