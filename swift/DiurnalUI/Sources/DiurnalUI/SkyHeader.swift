@@ -14,12 +14,16 @@ import SwiftUI
 public struct SkyHeader<Overlay: View>: View {
     public enum Band {
         case short, standard, tall
+        /// For a header whose height is already decided by the layout around
+        /// it, which is the usual case in an app rather than on a page.
+        case points(CGFloat)
 
         var points: CGFloat {
             switch self {
             case .short: 72
             case .standard: 112
             case .tall: 168
+            case .points(let value): value
             }
         }
     }
