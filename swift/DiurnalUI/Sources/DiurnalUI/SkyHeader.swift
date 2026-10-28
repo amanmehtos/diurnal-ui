@@ -193,11 +193,13 @@ public struct SkyHeader<Overlay: View>: View {
             context.stroke(Path(ellipseIn: body), with: .color(ink.opacity(alpha)), style: stroke)
             var rays = Path()
             for i in 0..<12 {
-                let t = Double(i) / 12 * 2 * .pi
+                let angle = Double(i) / 12 * 2 * Double.pi
+                let ux = CGFloat(cos(angle))
+                let uy = CGFloat(sin(angle))
                 let inner = r * (i % 2 == 1 ? 0.8 : 0.86)
                 let outer = r * (i % 2 == 1 ? 1.12 : 1.3)
-                rays.move(to: CGPoint(x: centre.x + cos(t) * inner, y: centre.y + sin(t) * inner))
-                rays.addLine(to: CGPoint(x: centre.x + cos(t) * outer, y: centre.y + sin(t) * outer))
+                rays.move(to: CGPoint(x: centre.x + ux * inner, y: centre.y + uy * inner))
+                rays.addLine(to: CGPoint(x: centre.x + ux * outer, y: centre.y + uy * outer))
             }
             context.stroke(rays, with: .color(ink.opacity(alpha)), style: stroke)
         }
@@ -214,14 +216,15 @@ public struct SkyHeader<Overlay: View>: View {
         for bank in 0...banks {
             let depth = Double(bank + 1) / Double(banks + 1)  // 1 is nearest
             let span = size.width + 240
-            let drift = (time * 4 * depth).truncatingRemainder(dividingBy: span)
+            let drift = (CGFloat(time) * 4 * CGFloat(depth)).truncatingRemainder(dividingBy: span)
 
             var shape = Path()
             for i in 0..<7 {
                 let seed = bank * 7 + i
                 let x = (noise(seed) * span + drift).truncatingRemainder(dividingBy: span) - 120
-                let y = size.height * (0.18 + 0.5 * (1 - depth)) + noise(seed, 1) * size.height * 0.1
-                let rx = (18 + noise(seed, 2) * 42) * (0.6 + depth * 0.7)
+                let lift = CGFloat(0.18 + 0.5 * (1 - depth))
+                let y = size.height * lift + noise(seed, 1) * size.height * 0.1
+                let rx = (18 + noise(seed, 2) * 42) * CGFloat(0.6 + depth * 0.7)
                 let ry = rx * (0.34 + noise(seed, 3) * 0.16)
                 shape.addEllipse(in: CGRect(x: x - rx, y: y - ry, width: rx * 2, height: ry * 2))
             }
@@ -248,8 +251,9 @@ public struct SkyHeader<Overlay: View>: View {
         if weather.isFrozen {
             var flakes = Path()
             for i in 0..<count {
-                let x = noise(i) * size.width + sin((time * 1.2 + Double(i)) * 1.3) * 6
-                let fall = (noise(i, 1) * size.height + time * 16 * (0.55 + noise(i, 3) * 0.7))
+                let waver = CGFloat(sin((time * 1.2 + Double(i)) * 1.3)) * 6
+                let x = noise(i) * size.width + waver
+                let fall = noise(i, 1) * size.height + CGFloat(time) * 16 * (0.55 + noise(i, 3) * 0.7)
                 let y = fall.truncatingRemainder(dividingBy: size.height + 12)
                 flakes.addEllipse(in: CGRect(x: x - 1.1, y: y - 1.1, width: 2.2, height: 2.2))
             }
@@ -259,7 +263,7 @@ public struct SkyHeader<Overlay: View>: View {
             for i in 0..<count {
                 let x = noise(i) * size.width
                 let length = 6 + noise(i, 2) * 10
-                let fall = (noise(i, 1) * size.height + time * 90 * (0.55 + noise(i, 3) * 0.7))
+                let fall = noise(i, 1) * size.height + CGFloat(time) * 90 * (0.55 + noise(i, 3) * 0.7)
                 let y = fall.truncatingRemainder(dividingBy: size.height + 20)
                 streaks.move(to: CGPoint(x: x, y: y))
                 streaks.addLine(to: CGPoint(x: x - 2.5, y: y + length))
@@ -270,8 +274,8 @@ public struct SkyHeader<Overlay: View>: View {
 
     /// A fixed shuffle, so the banks and the rain do not re-deal themselves on
     /// every frame. Seeded by index alone: the same drop is always the same drop.
-    private func noise(_ i: Int, _ salt: Int = 0) -> Double {
+    private func noise(_ i: Int, _ salt: Int = 0) -> CGFloat {
         let x = sin(Double(i) * 127.1 + Double(salt) * 311.7) * 43758.5453
-        return x - floor(x)
+        return CGFloat(x - floor(x))
     }
 }
