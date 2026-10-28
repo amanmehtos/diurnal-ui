@@ -612,3 +612,24 @@ html:not([data-dn-motion='classic']) .dn-seg button[aria-selected='true'] { back
    break anywhere, since an address is one long word. */
 a.dn-autolink { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); text-underline-offset: .18em; overflow-wrap: anywhere; word-break: break-word; }
 a.dn-autolink:hover { text-decoration-color: currentColor; }
+
+/* ---- The sky overhead (sky-header.mjs): a band showing the weather that is
+   already shaping every shadow on the page. It fades out at its lower edge
+   rather than ending, so content passes under it with no line to see — the
+   mask is the component, as much as the drawing is. Decorative and inert:
+   nothing in here is clickable and nothing is announced. */
+.dn-sky { position: relative; height: 112px; overflow: hidden; pointer-events: none;
+  /* Two masks intersected: the band dissolves downward into the page, and also
+     at its left and right, so it has no edge anywhere whether it is laid
+     full-bleed or sitting inside something padded. One gradient would leave
+     two hard vertical lines the moment it was inset. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent), linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent), linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  -webkit-mask-composite: source-in; mask-composite: intersect; }
+.dn-sky__canvas { display: block; width: 100%; height: 100%; }
+/* Anything placed inside the band sits on the sky and keeps its own pointer
+   events, so a title or a status line can live here. */
+.dn-sky > :not(.dn-sky__canvas) { position: relative; z-index: 1; pointer-events: auto; }
+.dn-sky--tall { height: 168px; }
+.dn-sky--short { height: 72px; }
+@media (max-width: 34rem) { .dn-sky { height: 88px; } .dn-sky--tall { height: 120px; } }

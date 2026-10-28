@@ -69,6 +69,37 @@ The screen is treated as the ground seen from above, north at the top. Shadows f
 
 Components set `--dn-elev` (px) and share one shadow recipe.
 
+## The sky, drawn
+
+Everything above shapes shadows. `sky-header.mjs` draws it instead:
+
+```html
+<div class="dn-sky" data-dn-sky></div>
+```
+
+An engraving, not a photograph — ink linework at low alpha, the way a book sets
+a diagram. That is the only honest way to put a sun on pale paper: a bright disc
+on near-white reads as a hole, while a ring with rays reads as the sun in either
+theme without reaching for a hue. The **sun is radiant** (a ring and rays) and
+the **moon is solid** (a filled disc), because moonlight is reflected; the
+difference is the drawing, never the colour.
+
+Cloud drifts in blurred banks whose weight follows cover, rain falls as strokes
+and snow as flakes — chosen by the WMO code, so sleet is not drawn as rain —
+and fog lays the page's own colour back over everything, so the sky loses its
+contrast rather than gaining a grey. Below the horizon the disc is simply
+absent.
+
+The band **fades on three edges** so it has no edge anywhere, inset or
+full-bleed. Anything placed inside it sits on the sky and keeps its own pointer
+events, so a title or a status line can live there.
+
+It subscribes to `diurnal`, so it follows the theme, the time scrubber and the
+weather presets with no state of its own. It draws **only when there is
+something to animate**: a clear sky is a still frame, and so is a hidden tab, a
+band scrolled out of view, or a reader who asked for reduced motion — which
+gets a correct still frame rather than a slower animation.
+
 ## Motion
 
 Diurnal follows the principles in Apple's *Designing Fluid Interfaces*, by way of Emil Kowalski's MIT-licensed work on the subject:
@@ -98,6 +129,7 @@ Fluid components: switch (drag or flick the knob), segmented control (spring-dri
 | Segmented control, tabs | `.dn-seg`, `.dn-tabs` |
 | Badge (solid, outline, danger), key, progress, tooltip | `.dn-badge`, `.dn-kbd`, `.dn-progress`, `[data-dn-tip]` |
 | Sheet, material | `.dn-sheet` (+ `[data-dn-sheet-open]`, `[data-dn-sheet-close]`), `.dn-material` |
+| Sky — a band showing the weather overhead, fading into the page | `.dn-sky` (+ `--tall`, `--short`, `[data-dn-sky]`) |
 | Theme toggle, powered-by mark | `[data-dn-toggle]`, `[data-dn-powered]` |
 | Screen-reader-only text | `.dn-sr-only` |
 | Token field — offers something as a trigger character is typed | `token-field.mjs`, `.dn-tokens` |
@@ -136,6 +168,7 @@ el.append(linkify('Pack: https://example.com/kyc.zip.'));
 | Path | What |
 |---|---|
 | `sky.mjs` | Sun and full-moon positions → shadow parameters |
+| `sky-header.mjs` | `skyHeader()`: that same sky, drawn as a header band |
 | `diurnal.mjs` | Runtime: theme, light variables, toggle, powered-by mark |
 | `diurnal.css` | Tokens and components |
 | `motion.mjs` | Springs, momentum projection, rubber-banding, 1:1 drag |

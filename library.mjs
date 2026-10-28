@@ -6,6 +6,7 @@ import { tokenField } from './token-field.mjs';
 import { frameImage } from './image-editor.mjs';
 import { ask, confirmAction } from './dialog.mjs';
 import { pasteTarget, pasteKey } from './paste.mjs';
+import './sky-header.mjs';
 
 const $ = (id) => document.getElementById(id);
 const W = 600, H = 220, PAD = { l: 34, r: 12, t: 14, b: 26 };
