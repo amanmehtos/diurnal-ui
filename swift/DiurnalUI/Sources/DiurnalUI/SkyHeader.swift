@@ -150,11 +150,19 @@ public struct SkyHeader<Overlay: View>: View {
 
     /// Azimuth runs left to right across the day; altitude lifts it off the
     /// lower edge.
+    ///
+    /// The top third is left alone. A band tall enough to be worth looking at
+    /// is tall enough that a high sun or moon lands behind the status bar and
+    /// the Dynamic Island — the one part of the screen where nothing can be
+    /// seen. The light still rises and sets; it just does it within the part
+    /// of the band that is actually visible.
     private func position(of source: LightSource, in size: CGSize) -> (centre: CGPoint, radius: CGFloat) {
         let x = (source.azimuth.truncatingRemainder(dividingBy: 360) / 360) * size.width
-        let lift = min(60, source.altitude) / 60
-        let y = size.height - 12 - lift * (size.height - 30)
-        return (CGPoint(x: x, y: y), max(9, min(20, size.height * 0.17)))
+        let lift = CGFloat(min(60, source.altitude) / 60)
+        let ceiling = size.height * 0.34
+        let floorY = size.height - 12
+        let y = floorY - lift * max(0, floorY - ceiling)
+        return (CGPoint(x: x, y: y), max(9, min(22, size.height * 0.14)))
     }
 
     private func drawDisc(

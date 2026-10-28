@@ -96,10 +96,17 @@ export function skyHeader(el) {
   // day — sunrise near a quarter in, noon at the middle — and altitude lifts
   // it off the lower edge.
   function discAt(source) {
+    // The top third is left alone: a band tall enough to be worth looking at
+    // is tall enough that a high sun lands under whatever sits across the top
+    // of the window — a masthead here, the Dynamic Island on a phone. The
+    // light still rises and sets, within the part of the band that is visible.
+    const ceiling = h * 0.34;
+    const floorY = h - 12;
+    const lift = Math.min(60, source.alt) / 60;
     return {
       x: ((source.az % 360) / 360) * w,
-      y: h - 12 - (Math.min(60, source.alt) / 60) * (h - 30),
-      r: Math.max(9, Math.min(20, h * 0.17)),
+      y: floorY - lift * Math.max(0, floorY - ceiling),
+      r: Math.max(9, Math.min(22, h * 0.14)),
     };
   }
 
